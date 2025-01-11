@@ -1,5 +1,5 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # 时长为1秒
 t = 1
@@ -26,6 +26,7 @@ signal_sin = signal_sin_1hz + 0.25 * signal_sin_25hz
 def filter_fir(input):
     pass
 
+
 # TODO: 首先正向对信号滤波(此时输出信号有一定相移)
 # 将输出信号反向，再次用该滤波器进行滤波
 # 再将输出信号反向
@@ -33,12 +34,13 @@ def filter_fir(input):
 def filter_zero_phase(input):
     pass
 
+
 if __name__ == "__main__":
     delay_filtered_signal = filter_fir(signal_sin)
     zerophase_filtered_signal = filter_zero_phase(signal_sin)
 
-    plt.plot(t_split, signal_sin, label = 'origin')
-    plt.plot(t_split, delay_filtered_signal, label = 'fir')
-    plt.plot(t_split, zerophase_filtered_signal, label = 'zero phase')
+    plt.plot(t_split, signal_sin, label="origin")
+    plt.plot(t_split, delay_filtered_signal, label="fir")
+    plt.plot(t_split, zerophase_filtered_signal, label="zero phase")
 
     plt.show()
