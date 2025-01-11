@@ -16,23 +16,51 @@ signal_sin_25hz = np.sin(x_25hz)
 
 signal_sin = signal_sin_1hz + 0.25 * signal_sin_25hz
 
+# FIR filter parameters
+NYQUIST_RATE = fs / 2
+PASSBAND_EDGE = 10 / NYQUIST_RATE
+STOPBAND_EDGE = 22 / NYQUIST_RATE
+STOPBAND_ATTENUATION = 44
+WINDOW_LENGTH = 17
 
-# TODO: 补全这部分代码
+
 # 通带边缘频率为10Hz，
 # 阻带边缘频率为22Hz，
 # 阻带衰减为44dB，窗内项数为17的汉宁窗函数
 # 构建低通滤波器
 # 函数需要返回滤波后的信号
 def filter_fir(input):
-    pass
+    # Use global constants instead of hardcoded values
+    n_values = np.arange(-(WINDOW_LENGTH // 2), (WINDOW_LENGTH // 2) + 1)
+
+    # Calculate cutoff frequency as midpoint between passband and stopband edges
+    cutoff_freq = (PASSBAND_EDGE + STOPBAND_EDGE) * NYQUIST_RATE / 2
+    wc = 2 * np.pi * cutoff_freq / fs
+
+    # Calculate ideal lowpass filter coefficients
+    filter_coefficients = np.where(
+        n_values == 0, wc / np.pi, np.sin(wc * n_values) / (np.pi * n_values)
+    )
+
+    # Apply Hanning window
+    hanning_window = 0.5 + 0.5 * np.cos(2 * np.pi * n_values / (WINDOW_LENGTH - 1))
+    filter_with_window = filter_coefficients * hanning_window
+
+    # Apply filter and trim to match input length
+    filtered_signal = np.convolve(input, filter_with_window)[: len(input)]
+    return filtered_signal
 
 
-# TODO: 首先正向对信号滤波(此时输出信号有一定相移)
+# 首先正向对信号滤波(此时输出信号有一定相移)
 # 将输出信号反向，再次用该滤波器进行滤波
 # 再将输出信号反向
 # 函数需要返回零相位滤波后的信号
 def filter_zero_phase(input):
-    pass
+    forward_filtered = filter_fir(input)
+    reversed_signal = np.flip(forward_filtered)
+    double_filtered = filter_fir(reversed_signal)
+    zero_phase_signal = np.flip(double_filtered)
+    return zero_phase_signal
 
 
 if __name__ == "__main__":
